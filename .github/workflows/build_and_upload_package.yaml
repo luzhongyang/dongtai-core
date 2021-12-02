@@ -53,6 +53,7 @@ jobs:
           VERSION=`cat setup.cfg | grep version | sed 's/version = //'`
           echo "::set-output name=version::$VERSION"
 
+
       - name: Upload tar file
         uses: actions/upload-release-asset@v1.0.2
         env:
