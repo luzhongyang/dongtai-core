@@ -17,6 +17,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.2.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Generate version file
+        run: |
+          cd ${{ github.workspace }} && \
+          echo "${{ github.event.repository.name }},version,${{ env.VELA_VERSION }}" >> version.txt && \
+          echo "${{ github.event.repository.name }},commit_hash,${GITHUB_SHA}" >> version.txt \
+
+      - name: Upload version file
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: version.txt
+          asset_name: version.txt
+          asset_content_type: text/plain
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
@@ -31,24 +53,12 @@ jobs:
           VERSION=`cat setup.cfg | grep version | sed 's/version = //'`
           echo "::set-output name=version::$VERSION"
 
-      - name: Upload to oss
-        id: upload_to_oss
-        uses: tvrcgo/upload-to-oss@master
+      - name: Upload tar file
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
         with:
-          key-id: ${{ secrets.OSS_KEY_ID }}
-          key-secret: ${{ secrets.OSS_KEY_SECRET }}
-          region: oss-cn-beijing
-          bucket: huoqi-public
-          assets: |
-            ./dist/dongtai-${{ steps.release.outputs.version }}.tar.gz:/iast/dongtai-test-${{ steps.release.outputs.version }}.tar.gz
-
-      - name: Upload to oss latest
-        id: upload_to_oss_latest
-        uses: tvrcgo/upload-to-oss@master
-        with:
-          key-id: ${{ secrets.OSS_KEY_ID }}
-          key-secret: ${{ secrets.OSS_KEY_SECRET }}
-          region: oss-cn-beijing
-          bucket: huoqi-public
-          assets: |
-            ./dist/dongtai-${{ steps.release.outputs.version }}.tar.gz:/iast/dongtai-test-latest.tar.gz
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./dist/dongtai-${{ steps.release.outputs.version }}.tar.gz
+          asset_name: ./dist/dongtai-${{ steps.release.outputs.version }}.tar.gz
+          asset_content_type: application/gzip
