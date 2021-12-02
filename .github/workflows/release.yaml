@@ -1,0 +1,56 @@
+name: Release
+on:
+  push:
+    tags:
+      - "v*"
+jobs:
+  build:
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Get release
+        id: get_release
+        uses: bruceadams/get-release@v1.2.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+
+      - name: Generate version file
+        run: |
+          cd ${{ github.workspace }} && \
+          echo "${{ github.event.repository.name }},version,${{ env.VELA_VERSION }}" >> version.txt && \
+          echo "${{ github.event.repository.name }},commit_hash,${GITHUB_SHA}" >> version.txt \
+
+      - name: Upload version file
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: version.txt
+          asset_name: version.txt
+          asset_content_type: text/plain
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.x'
+
+      - name: Build DongTai Core Package
+        run: |
+          python setup.py sdist
+
+      - id: release
+        run: |
+          VERSION=`cat setup.cfg | grep version | sed 's/version = //'`
+          echo "::set-output name=version::$VERSION"
+
+      - name: Upload tar file
+        uses: actions/upload-release-asset@v1.0.2
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          upload_url: ${{ steps.get_release.outputs.upload_url }}
+          asset_path: ./dist/dongtai-${{ steps.release.outputs.version }}.tar.gz
+          asset_name: ./dist/dongtai-${{ steps.release.outputs.version }}.tar.gz
+          asset_content_type: application/gzip
