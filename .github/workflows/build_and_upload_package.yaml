@@ -20,7 +20,7 @@ jobs:
       - name: test
         run: |
           VELA_VERSION=v1.1.1 && \
-          PYTHON_VELA_VERSION=`echo ${VELA_VERSION} | grep -Eo "(\d+\.)+\d"` && \
+          PYTHON_VELA_VERSION=`echo ${{ VELA_VERSION }} | grep -Eo "(\d+\.)+\d"` && \
           echo ${VELA_VERSION} >> test.txt && \
           cat test.txt \
 
