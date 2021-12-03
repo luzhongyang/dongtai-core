@@ -25,14 +25,13 @@ jobs:
       - name: Get python version
         id: get_python_version
         run: |
-          V=`echo ${{ steps.get_version.outputs.VERSION }} | grep -Eo "(\d+\.)+\d"` || true
+          V=`echo ${{ steps.get_version.outputs.VERSION }} | sed -e's/v//g' | sed -e's/V//g'; \
           echo ::set-output name=PYTHON_VERSION::${V}
 
       - name: test
         run: |
           echo ${{ steps.get_version.outputs.VERSION }} \
           echo ${{ steps.get_python_version.outputs.PYTHON_VERSION }} \
-          echo ${{ steps.get_version.outputs.VERSION }} | sed -e's/v//g' | sed -e's/V//g'; \
           echo "--test--" \
 
       - name: Get release
