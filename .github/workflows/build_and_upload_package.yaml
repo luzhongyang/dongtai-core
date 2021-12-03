@@ -32,7 +32,7 @@ jobs:
         run: |
           echo ${{ steps.get_version.outputs.VERSION }} \
           echo ${{ steps.get_python_version.outputs.PYTHON_VERSION }} \
-          echo ${{ steps.get_version.outputs.VERSION }} | grep -Eo "(\d+\.)+\d"; \
+          echo ${{ steps.get_version.outputs.VERSION }} | sed -e's/v//g' | sed -e's/V//g'; \
           echo "--test--" \
 
       - name: Get release
