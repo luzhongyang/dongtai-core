@@ -17,6 +17,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: test
+        run: |
+          VELA_VERSION=v1.1.1 && \
+          PYTHON_VELA_VERSION=`echo ${VELA_VERSION} | grep -Eo "(\d+\.)+\d"` && \
+          echo ${PYTHON_VELA_VERSION} >> test.txt && \
+          cat test.txt \
+
       - name: Get release
         id: get_release
         uses: bruceadams/get-release@v1.2.2
