@@ -25,7 +25,7 @@ jobs:
       - name: Get python version
         id: get_python_version
         run: |
-          V=`echo ${{ steps.get_version.outputs.VERSION }} | sed -e's/v//g' | sed -e's/V//g'; \
+          V=`echo ${{ steps.get_version.outputs.VERSION }} | sed -e's/v//g' | sed -e's/V//g'`; \
           echo ::set-output name=PYTHON_VERSION::${V}
 
       - name: test
