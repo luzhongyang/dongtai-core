@@ -20,10 +20,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
-      - name: Replace setup cfg
-        run: |
-          sed -i -e 's/version = .*$/version = ${{ env.VELA_VERSION }}/g' setup.cfg
-
       - name: Generate version file
         run: |
           cd ${{ github.workspace }} && \
@@ -45,14 +41,15 @@ jobs:
         with:
           python-version: '3.x'
 
+      - name: Replace setup cfg
+        run: |
+          sed -i -e 's/version = .*$/version = ${{ env.VELA_VERSION }}/g' setup.cfg
+          cat setup.cfg
+
       - name: Build DongTai Core Package
         run: |
           python setup.py sdist
-
-      - id: release
-        run: |
-          VERSION=`cat setup.cfg | grep version | sed 's/version = //'`
-          echo "::set-output name=version::$VERSION"
+          ls ./dist
 
       - name: Upload tar file
         uses: actions/upload-release-asset@v1.0.2
