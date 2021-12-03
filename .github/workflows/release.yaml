@@ -20,6 +20,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
+      - id: replace setup.cfg
+        run: |
+          sed -i -e 's/version = .*$/version = ${{ env.VELA_VERSION }}/g' setup.cfg
+
       - name: Generate version file
         run: |
           cd ${{ github.workspace }} && \
