@@ -11,8 +11,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Get version
-        run: echo "VELA_VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_ENV
+      - name: Get the release version
+        id: get_version
+        run: |
+          VELA_VERSION=${GITHUB_REF#refs/tags/}
+          PYTHON_VELA_VERSION=`echo ${VELA_VERSION} | grep -Eo "(\d+\.)+\d"`
+          echo ::set-output name=VERSION::${PYTHON_VELA_VERSION}
 
       - name: Get release
         id: get_release
@@ -23,7 +27,7 @@ jobs:
       - name: Generate version file
         run: |
           cd ${{ github.workspace }} && \
-          echo "${{ github.event.repository.name }},version,${{ env.VELA_VERSION }}" >> version.txt && \
+          echo "${{ github.event.repository.name }},version,${{ steps.get_version.outputs.PYTHON_VELA_VERSION }}" >> version.txt && \
           echo "${{ github.event.repository.name }},commit_hash,${GITHUB_SHA}" >> version.txt \
 
       - name: Upload version file
@@ -43,7 +47,7 @@ jobs:
 
       - name: Replace setup cfg
         run: |
-          sed -i -e 's/version = .*$/version = ${{ env.VELA_VERSION }}/g' setup.cfg
+          sed -i -e 's/version = .*$/version = ${{ steps.get_version.outputs.PYTHON_VELA_VERSION }}/g' setup.cfg
           cat setup.cfg
 
       - name: Build DongTai Core Package
@@ -57,6 +61,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./dist/dongtai-${{ env.VELA_VERSION }}.tar.gz
-          asset_name: ./dist/dongtai-${{ env.VELA_VERSION }}.tar.gz
+          asset_path: ./dist/dongtai-${{ steps.get_version.outputs.PYTHON_VELA_VERSION }}.tar.gz
+          asset_name: ./dist/dongtai-${{ steps.get_version.outputs.PYTHON_VELA_VERSION }}.tar.gz
           asset_content_type: application/gzip
