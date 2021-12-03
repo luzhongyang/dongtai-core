@@ -12,12 +12,21 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Get the release version
-        id: get_version
+        id: get_version1
         run: |
+          echo '::set-output name=action_echo::enabled'
           VELA_VERSION=${GITHUB_REF#refs/tags/} \
           echo ${VELA_VERSION} \
           PYTHON_VELA_VERSION=`echo ${VELA_VERSION} | grep -Eo "(\d+\.)+\d"` \
           echo ${PYTHON_VELA_VERSION} \
+
+      - name: Get the release version
+        id: get_version
+        run: |
+          VELA_VERSION=${GITHUB_REF#refs/tags/} \
+          PYTHON_VELA_VERSION=`echo ${VELA_VERSION} | grep -Eo "(\d+\.)+\d"` \
+          echo ::set-output name=VERSION::${VELA_VERSION} \
+          echo ::set-output name=PYTHON_VELA_VERSION::${PYTHON_VELA_VERSION} \
 
       - name: Get release
         id: get_release
