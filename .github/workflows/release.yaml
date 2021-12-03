@@ -11,38 +11,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: test
-        run: |
-          VELA_VERSION=v1.1.1
-          PYTHON_VELA_VERSION=`echo ${VELA_VERSION} | grep -Eo "(\d+\.)+\d"` \
-          echo ${PYTHON_VELA_VERSION} >> test.txt \
-          cat test.txt \
-
-      - name: Get the release version
-        run: |
-          VELA_VERSION=${GITHUB_REF#refs/tags/} \
-          echo ${VELA_VERSION} >> test.txt \
-          PYTHON_VELA_VERSION=`echo ${VELA_VERSION} | grep -Eo "(\d+\.)+\d"` \
-          echo ${PYTHON_VELA_VERSION} >> test.txt \
-          cat test.txt \
-
-      - name: Get the release version
-        id: get_version
-        run: |
-          VELA_VERSION=${GITHUB_REF#refs/tags/} \
-          PYTHON_VELA_VERSION=`echo ${VELA_VERSION} | grep -Eo "(\d+\.)+\d"` \
-          echo ::set-output name=VERSION::${PYTHON_VELA_VERSION} \
-
       - name: Get release
         id: get_release
         uses: bruceadams/get-release@v1.2.2
         env:
           GITHUB_TOKEN: ${{ github.token }}
 
+      - name: Get version
+        id: get_version
+        run: |
+          echo ::set-output name=VERSION::${GITHUB_REF#refs/tags/}
+
+      - name: Get python version
+        id: get_python_version
+        run: |
+          V=`echo ${{ steps.get_version.outputs.VERSION }} | sed -e's/v//g' | sed -e's/V//g'`; \
+          echo ::set-output name=VERSION::${V}
+
       - name: Generate version file
         run: |
           cd ${{ github.workspace }} && \
-          echo "${{ github.event.repository.name }},version,${{ steps.get_version.outputs.VERSION }}" >> version.txt && \
+          echo "${{ github.event.repository.name }},version,${{ steps.get_python_version.outputs.VERSION }}" >> version.txt && \
           echo "${{ github.event.repository.name }},commit_hash,${GITHUB_SHA}" >> version.txt \
 
       - name: Upload version file
@@ -62,7 +51,7 @@ jobs:
 
       - name: Replace setup cfg
         run: |
-          sed -i -e 's/version = .*$/version = ${{ steps.get_version.outputs.VERSION }}/g' setup.cfg
+          sed -i -e 's/version = .*$/version = ${{ steps.get_python_version.outputs.VERSION }}/g' setup.cfg
           cat setup.cfg
 
       - name: Build DongTai Core Package
@@ -76,6 +65,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           upload_url: ${{ steps.get_release.outputs.upload_url }}
-          asset_path: ./dist/dongtai-${{ steps.get_version.outputs.VERSION }}.tar.gz
-          asset_name: ./dist/dongtai-${{ steps.get_version.outputs.VERSION }}.tar.gz
+          asset_path: ./dist/dongtai-${{ steps.get_python_version.outputs.VERSION }}.tar.gz
+          asset_name: ./dist/dongtai-${{ steps.get_python_version.outputs.VERSION }}.tar.gz
           asset_content_type: application/gzip
