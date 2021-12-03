@@ -26,6 +26,7 @@ jobs:
         id: get_python_version
         run: |
           V=`echo ${{ steps.get_version.outputs.VERSION }} | grep -Eo "(\d+\.)+\d"` || true
+          echo ::set-output name=PYTHON_VERSION::${V}
 
       - name: test
         run: |
