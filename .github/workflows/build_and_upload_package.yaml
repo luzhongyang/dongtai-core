@@ -17,12 +17,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - name: Get VERSION
+        id: get_version
+        run: |
+          echo ::set-output name=VERSION::v1.1.1
+
+      - name: Get python version
+        id: get_python_version
+        run: |
+          echo ::set-output name=PYTHON_VERSION::${{ steps.get_version.outputs.VERSION }} | grep -Eo "(\d+\.)+\d"`
+
       - name: test
         run: |
-          VELA_VERSION=v1.1.1 && \
-          PYTHON_VELA_VERSION=`echo ${{ VELA_VERSION }} | grep -Eo "(\d+\.)+\d"` && \
-          echo ${VELA_VERSION} >> test.txt && \
-          cat test.txt \
+          echo ${{ steps.get_version.outputs.VERSION }} \
+          echo ${{ steps.get_python_version.outputs.PYTHON_VERSION }} \
+          echo "--test--" \
 
       - name: Get release
         id: get_release
