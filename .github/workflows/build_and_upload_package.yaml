@@ -61,14 +61,15 @@ jobs:
         with:
           python-version: '3.x'
 
+      - name: Replace setup cfg
+        run: |
+          sed -i -e 's/version = .*$/version = ${{ steps.get_short_branch.outputs.BRANCH }}/g' setup.cfg
+          cat setup.cfg
+
+
       - name: Build DongTai Core Package
         run: |
           python setup.py sdist
-
-      - id: release
-        run: |
-          VERSION=`cat setup.cfg | grep version | sed 's/version = //'`
-          echo "::set-output name=version::$VERSION"
 
 
       - name: Upload tar file
