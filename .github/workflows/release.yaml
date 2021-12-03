@@ -14,9 +14,9 @@ jobs:
       - name: Get the release version
         id: get_version
         run: |
-          VELA_VERSION=${GITHUB_REF#refs/tags/}
-          PYTHON_VELA_VERSION=`echo ${VELA_VERSION} | grep -Eo "(\d+\.)+\d"`
-          echo ::set-output name=VERSION::${PYTHON_VELA_VERSION}
+          VELA_VERSION=${GITHUB_REF#refs/tags/} \
+          PYTHON_VELA_VERSION=`echo ${VELA_VERSION} | grep -Eo "(\d+\.)+\d"` \
+          echo ::set-output name=VERSION::${PYTHON_VELA_VERSION} \
 
       - name: Get release
         id: get_release
