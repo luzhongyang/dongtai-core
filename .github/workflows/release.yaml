@@ -21,7 +21,6 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
 
       - name: Replace setup cfg
-      - id: replace_setup_cfg
         run: |
           sed -i -e 's/version = .*$/version = ${{ env.VELA_VERSION }}/g' setup.cfg
 
